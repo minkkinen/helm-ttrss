@@ -37,6 +37,7 @@
       (let ((article (first (ttrss-get-article ttrss-address ttrss-sid article-id))))
 	(insert (concat "<h1>" (plist-get article :title) "</h1>"))
 	(insert "\n")
+	(insert (concat "<a href=\"" (plist-get article :link) "\">Open article</a>\n"))
 	(insert (plist-get article :content))
 	(shr-render-buffer (current-buffer))))))
 
