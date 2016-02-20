@@ -24,7 +24,8 @@
 	      (plist-get 
 	       (first (ttrss-get-headlines ttrss-address ttrss-sid :feed_id -1 :search search-string))
 	       :id)))
-	(ttrss-update-article ttrss-address ttrss-sid article-id :mode 0 :field 0)))))
+	(ttrss-update-article ttrss-address ttrss-sid article-id :mode 0 :field 0))))
+  (helm-refresh))
 
 (defun helm-ttrss-open (_)
   (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password))
