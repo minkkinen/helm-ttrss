@@ -13,8 +13,8 @@
 
 (defun helm-ttrss-candidates ()
   (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password))
-	 (headlines (ttrss-get-headlines ttrss-address ttrss-sid :feed_id -1 :limit 100)))
-    (mapcar (lambda (x) (plist-get x :title)) headlines))) 
+	 (headlines (ttrss-get-headlines ttrss-address ttrss-sid :feed_id -1)))
+    (mapcar (lambda (x) (plist-get x :title)) headlines)))
 
 (defun helm-ttrss-unstar (_)
   (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password)))
@@ -41,6 +41,9 @@
 
 (defun helm-ttrss-starred ()
   (interactive)
-  (helm :sources '(helm-ttrss-source)))
+  (helm :sources '(helm-ttrss-source)
+	:full-frame t
+	:candidate-number-limit 200))
+
 
 (provide 'helm-ttrss)
