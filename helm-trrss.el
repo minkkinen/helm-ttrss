@@ -25,7 +25,7 @@
 	 (headlines (ttrss-get-headlines ttrss-address ttrss-sid :feed_id -1)))
     (mapcar (lambda (x)
 	      (concat "|" (number-to-string (plist-get x :id)) "| "
-		      (plist-get x :title)))
+		      (plist-get x :title) " (" (plist-get x :feed_title) ")"))
 	    headlines)))
 
 (defun helm-ttrss-unstar (_)
@@ -37,12 +37,13 @@
   (helm-refresh))
 
 (defun helm-ttrss-open (_)
-  (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password))
-	 (first-candidate (first (helm-marked-candidates)))
-	 (id-match (string-match "^|\\([0-9]+\\)|" first-candidate))
-	 (article-id (string-to-number (match-string-no-properties 1 first-candidate))))
-    (with-temp-buffer
-      (let ((article (first (ttrss-get-article ttrss-address ttrss-sid article-id))))
+  (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password)))
+    (dolist (i (helm-marked-candidates))
+      (let* ((id-match (string-match "^|\\([0-9]+\\)|" i))
+	     (article-id (string-to-number (match-string-no-properties 1 i)))
+	     (article (first (ttrss-get-article ttrss-address ttrss-sid article-id))))
+	(get-buffer-create (plist-get article :title))
+	(switch-to-buffer (plist-get article :title))
 	(insert (concat
 		 "<h1>" (plist-get article :title) "</h1>\n"
 		 "<h2>" (plist-get article :author) "</h2>\n\n"))
@@ -50,7 +51,9 @@
 			(plist-get article :link) "\">"
 			(plist-get article :link) "</a>\n"))
 	(insert (plist-get article :content))
-	(shr-render-buffer (current-buffer))))))
+	(shr-render-region (point-min) (point-max))
+	(goto-char (point-min))
+	(view-mode 1)))))
 
 (defun helm-ttrss-starred ()
   (interactive)
