@@ -1,4 +1,13 @@
+;;; helm-ttrss.el --- Interacting with Tiny Tiny RSS from Emacs through helm
+
+;; Copyright (C) 2016 Matti Minkkinen
+
+;; Author: Matti Minkkinen <matti.minkkinen@iki.fi>
+
 (require 'ttrss)
+
+(defvar helm-ttrss-headlines nil
+  "List of articles downloaded from TTRSS.")
 
 (defvar helm-ttrss-source
   '((name . "TTRSS starred articles")
