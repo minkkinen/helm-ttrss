@@ -34,7 +34,8 @@
       (let* ((id-match (string-match "^|\\([0-9]+\\)|" i))
 	     (article-id (match-string-no-properties 1 i)))
 	(ttrss-update-article ttrss-address ttrss-sid article-id :mode 0 :field 0))))
-  (helm-refresh))
+  (helm-refresh)
+  (helm-unmark-all))
 
 (defun helm-ttrss-open (_)
   (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password)))
