@@ -35,17 +35,19 @@
 	   (first (ttrss-get-headlines ttrss-address ttrss-sid :feed_id -1 :search search-string)) :id)))
     (with-temp-buffer
       (let ((article (first (ttrss-get-article ttrss-address ttrss-sid article-id))))
-	(insert (concat "<h1>" (plist-get article :title) "</h1>"))
-	(insert "\n")
-	(insert (concat "<a href=\"" (plist-get article :link) "\">Open article</a>\n"))
+	(insert (concat
+		 "<h1>" (plist-get article :title) "</h1>\n"
+		 "<h2>" (plist-get article :author) "</h2>\n\n"))
+	(insert (concat "<a href=\""
+			(plist-get article :link) "\">"
+			(plist-get article :link) "</a>\n"))
 	(insert (plist-get article :content))
 	(shr-render-buffer (current-buffer))))))
 
 (defun helm-ttrss-starred ()
   (interactive)
   (helm :sources '(helm-ttrss-source)
-	:full-frame t
-	:candidate-number-limit 200))
+	:full-frame t))
 
 
 (provide 'helm-ttrss)
