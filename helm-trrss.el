@@ -47,13 +47,18 @@
 	(switch-to-buffer (plist-get article :title))
 	(insert (concat
 		 "<h1>" (plist-get article :title) "</h1>\n"
-		 "<h2>" (plist-get article :author) "</h2>\n\n"))
+		 "<h2>" (plist-get article :author) "</h2>\n\n"
+		 ;; convert UNIX epoch time string to date and time
+		 ;; (stolen from
+		 ;; http://nullman.net/tutorial/emacs-files/.emacs.d/kyle-modules/epoch.el.html)
+		 "<h2>" (format-time-string "%Y-%m-%d %H:%M:%S" (seconds-to-time (plist-get article :updated)) t) "</h2>\n\n"))
 	(insert (concat "<a href=\""
 			(plist-get article :link) "\">"
 			(plist-get article :link) "</a>\n"))
 	(insert (plist-get article :content))
 	(shr-render-region (point-min) (point-max))
 	(goto-char (point-min))
+	(text-mode)
 	(view-mode 1)))))
 
 (defun helm-ttrss-starred ()
