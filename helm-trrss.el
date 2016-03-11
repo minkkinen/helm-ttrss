@@ -18,17 +18,17 @@
   "Source for starred articles in TTRSS.")
 
 (defvar helm-ttrss-source
-  '((name . "TTRSS starred articles")
+  '((name . "TTRSS fresh articles")
     (init . helm-ttrss-init)
     (candidates . helm-ttrss-candidates)
-    (action . (("Unstar" . helm-ttrss-unstar)
+    (action . (("Mark read" . helm-ttrss-mark-read)
 	       ("Open" . helm-ttrss-open))))
   "Source for starred articles in TTRSS.")
 
 (defun helm-ttrss-init ()
   ())
 
-(defun helm-ttrss-candidates ()
+(defun helm-ttrss-starred-candidates ()
   (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password))
 	 (headlines (ttrss-get-headlines ttrss-address ttrss-sid :feed_id -1)))
     (cl-loop for headline in headlines
@@ -40,7 +40,7 @@
 
 (defun helm-ttrss-candidates ()
   (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password))
-	 (headlines (ttrss-get-headlines ttrss-address ttrss-sid :feed_id -3)))
+	 (headlines (ttrss-get-headlines ttrss-address ttrss-sid :feed_id -3 :view_mode "unread")))
     (cl-loop for headline in headlines
 	     collect
 	     (cons
@@ -52,6 +52,14 @@
   (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password)))
     (dolist (article-id (helm-marked-candidates))
       (ttrss-update-article ttrss-address ttrss-sid (string-to-number article-id) :mode 0 :field 0)))
+  (when helm-alive-p
+    (helm-refresh)
+    (helm-unmark-all)))
+
+(defun helm-ttrss-mark-read (_)
+  (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password)))
+    (dolist (article-id (helm-marked-candidates))
+      (ttrss-update-article ttrss-address ttrss-sid (string-to-number article-id) :mode 0 :field 2)))
   (when helm-alive-p
     (helm-refresh)
     (helm-unmark-all)))
