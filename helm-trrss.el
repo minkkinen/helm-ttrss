@@ -9,6 +9,14 @@
 (defvar helm-ttrss-headlines nil
   "List of articles downloaded from TTRSS.")
 
+(defvar helm-ttrss-starred-source
+  '((name . "TTRSS starred articles")
+    (init . helm-ttrss-init)
+    (candidates . helm-ttrss-starred-candidates)
+    (action . (("Unstar" . helm-ttrss-unstar)
+	       ("Open" . helm-ttrss-open))))
+  "Source for starred articles in TTRSS.")
+
 (defvar helm-ttrss-source
   '((name . "TTRSS starred articles")
     (init . helm-ttrss-init)
@@ -20,9 +28,17 @@
 (defun helm-ttrss-init ()
   ())
 
-(defun helm-ttrss-candidates ()
+(defun helm-ttrss-starred-candidates ()
   (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password))
 	 (headlines (ttrss-get-headlines ttrss-address ttrss-sid :feed_id -1)))
+    (mapcar (lambda (x)
+	      (concat "|" (number-to-string (plist-get x :id)) "| "
+		      (plist-get x :title) " (" (plist-get x :feed_title) ")"))
+	    headlines)))
+
+(defun helm-ttrss-candidates ()
+  (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password))
+	 (headlines (ttrss-get-headlines ttrss-address ttrss-sid :feed_id -3)))
     (mapcar (lambda (x)
 	      (concat "|" (number-to-string (plist-get x :id)) "| "
 		      (plist-get x :title) " (" (plist-get x :feed_title) ")"))
@@ -64,8 +80,12 @@
 
 (defun helm-ttrss-starred ()
   (interactive)
-  (helm :sources '(helm-ttrss-source)
+  (helm :sources '(helm-ttrss-starred-source)
 	:full-frame t))
 
+(defun helm-ttrss ()
+  (interactive)
+  (helm :sources '(helm-ttrss-source)
+	:full-frame t))
 
 (provide 'helm-ttrss)
