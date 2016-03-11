@@ -28,38 +28,38 @@
 (defun helm-ttrss-init ()
   ())
 
-(defun helm-ttrss-starred-candidates ()
+(defun helm-ttrss-candidates ()
   (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password))
 	 (headlines (ttrss-get-headlines ttrss-address ttrss-sid :feed_id -1)))
-    (mapcar (lambda (x)
-	      (concat "|" (number-to-string (plist-get x :id)) "| "
-		      (plist-get x :title) " (" (plist-get x :feed_title) ")"))
-	    headlines)))
+    (cl-loop for headline in headlines
+	     collect
+	     (cons 
+	      (concat (plist-get headline :title) " ("
+		      (plist-get headline :feed_title) ")")
+	      (number-to-string (plist-get headline :id))))))
 
 (defun helm-ttrss-candidates ()
   (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password))
 	 (headlines (ttrss-get-headlines ttrss-address ttrss-sid :feed_id -3)))
-    (mapcar (lambda (x)
-	      (concat "|" (number-to-string (plist-get x :id)) "| "
-		      (plist-get x :title) " (" (plist-get x :feed_title) ")"))
-	    headlines)))
+    (cl-loop for headline in headlines
+	     collect
+	     (cons
+	      (concat (plist-get headline :title) " ("
+		      (plist-get headline :feed_title) ")")
+	      (number-to-string (plist-get headline :id))))))
 
 (defun helm-ttrss-unstar (_)
   (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password)))
-    (dolist (i (helm-marked-candidates))
-      (let* ((id-match (string-match "^|\\([0-9]+\\)|" i))
-	     (article-id (match-string-no-properties 1 i)))
-	(ttrss-update-article ttrss-address ttrss-sid article-id :mode 0 :field 0))))
+    (dolist (article-id (helm-marked-candidates))
+      (ttrss-update-article ttrss-address ttrss-sid (string-to-number article-id) :mode 0 :field 0)))
   (when helm-alive-p
     (helm-refresh)
     (helm-unmark-all)))
 
 (defun helm-ttrss-open (_)
   (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password)))
-    (dolist (i (helm-marked-candidates))
-      (let* ((id-match (string-match "^|\\([0-9]+\\)|" i))
-	     (article-id (string-to-number (match-string-no-properties 1 i)))
-	     (article (first (ttrss-get-article ttrss-address ttrss-sid article-id))))
+    (dolist (article-id (helm-marked-candidates))
+      (let ((article (first (ttrss-get-article ttrss-address ttrss-sid (string-to-number article-id)))))
 	(get-buffer-create (plist-get article :title))
 	(switch-to-buffer (plist-get article :title))
 	(insert (concat
