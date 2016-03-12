@@ -104,13 +104,15 @@
 (defun helm-ttrss-feeds-open (_)
   (let ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password)))
     (helm :sources (helm-build-sync-source "Articles"
-		     :candidates (let ((headlines (ttrss-get-headlines ttrss-address ttrss-sid :feed_id (car (helm-marked-candidates) :view_mode "unread")))
-			  (cl-loop for headline in headlines
-				   collect
-				   (cons
-				    (concat (plist-get headline :title) " ("
-					    (plist-get headline :feed_title) ")")
-				    (plist-get headline :id))))))
+		     :candidates (let ((headlines (ttrss-get-headlines ttrss-address ttrss-sid :feed_id (car (helm-marked-candidates)) :view_mode "unread")))
+				   (cl-loop for headline in headlines
+					    collect
+					    (cons
+					     (concat (plist-get headline :title) " ("
+						     (plist-get headline :feed_title) ")")
+					     (plist-get headline :id))))
+		     :action (("Mark read" . helm-ttrss-mark-read)
+			      ("Open" . helm-ttrss-open)))
 	  :full-frame t)))
 
 (defun helm-ttrss-starred ()
