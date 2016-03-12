@@ -36,7 +36,7 @@
 	     (cons 
 	      (concat (plist-get headline :title) " ("
 		      (plist-get headline :feed_title) ")")
-	      (number-to-string (plist-get headline :id))))))
+	      (plist-get headline :id)))))
 
 (defun helm-ttrss-candidates ()
   (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password))
@@ -46,12 +46,12 @@
 	     (cons
 	      (concat (plist-get headline :title) " ("
 		      (plist-get headline :feed_title) ")")
-	      (number-to-string (plist-get headline :id))))))
+	      (plist-get headline :id)))))
 
 (defun helm-ttrss-unstar (_)
   (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password)))
     (dolist (article-id (helm-marked-candidates))
-      (ttrss-update-article ttrss-address ttrss-sid (string-to-number article-id) :mode 0 :field 0)))
+      (ttrss-update-article ttrss-address ttrss-sid article-id :mode 0 :field 0)))
   (when helm-alive-p
     (helm-refresh)
     (helm-unmark-all)))
@@ -59,7 +59,7 @@
 (defun helm-ttrss-mark-read (_)
   (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password)))
     (dolist (article-id (helm-marked-candidates))
-      (ttrss-update-article ttrss-address ttrss-sid (string-to-number article-id) :mode 0 :field 2)))
+      (ttrss-update-article ttrss-address ttrss-sid article-id :mode 0 :field 2)))
   (when helm-alive-p
     (helm-refresh)
     (helm-unmark-all)))
@@ -67,7 +67,7 @@
 (defun helm-ttrss-open (_)
   (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password)))
     (dolist (article-id (helm-marked-candidates))
-      (let ((article (first (ttrss-get-article ttrss-address ttrss-sid (string-to-number article-id)))))
+      (let ((article (first (ttrss-get-article ttrss-address ttrss-sid article-id))))
 	(get-buffer-create (plist-get article :title))
 	(switch-to-buffer (plist-get article :title))
 	(insert (concat
