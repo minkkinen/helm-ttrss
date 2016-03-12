@@ -111,8 +111,8 @@
 					     (concat (plist-get headline :title) " ("
 						     (plist-get headline :feed_title) ")")
 					     (plist-get headline :id))))
-		     :action (("Mark read" . helm-ttrss-mark-read)
-			      ("Open" . helm-ttrss-open)))
+		     :action '(("Mark read" . helm-ttrss-mark-read)
+			       ("Open" . helm-ttrss-open)))
 	  :full-frame t)))
 
 (defun helm-ttrss-starred ()
