@@ -25,6 +25,13 @@
 	       ("Open" . helm-ttrss-open))))
   "Source for starred articles in TTRSS.")
 
+(defvar helm-ttrss-feeds-source
+  '((name . "TTRSS feeds")
+    (init . helm-ttrss-init)
+    (candidates . helm-ttrss-feeds-candidates)
+    (action . (("Open" . helm-ttrss-feeds-open))))
+  "Source for starred articles in TTRSS.")
+
 (defun helm-ttrss-init ()
   ())
 
@@ -47,6 +54,14 @@
 	      (concat (plist-get headline :title) " ("
 		      (plist-get headline :feed_title) ")")
 	      (plist-get headline :id)))))
+
+(defun helm-ttrss-feeds-candidates ()
+  (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password))
+	 (feeds (ttrss-get-feeds ttrss-address ttrss-sid :cat_id -3)))
+    (cl-loop for feed in feeds
+	     collect
+	     (cons (plist-get feed :title)
+		   (plist-get feed :id)))))
 
 (defun helm-ttrss-unstar (_)
   (let* ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password)))
@@ -86,6 +101,18 @@
 	(text-mode)
 	(view-mode 1)))))
 
+(defun helm-ttrss-feeds-open (_)
+  (let ((ttrss-sid (ttrss-login ttrss-address ttrss-user ttrss-password)))
+    (helm :sources (helm-build-sync-source "Articles"
+		     :candidates (let ((headlines (ttrss-get-headlines ttrss-address ttrss-sid :feed_id (car (helm-marked-candidates) :view_mode "unread")))
+			  (cl-loop for headline in headlines
+				   collect
+				   (cons
+				    (concat (plist-get headline :title) " ("
+					    (plist-get headline :feed_title) ")")
+				    (plist-get headline :id))))))
+	  :full-frame t)))
+
 (defun helm-ttrss-starred ()
   (interactive)
   (helm :sources '(helm-ttrss-starred-source)
@@ -94,6 +121,11 @@
 (defun helm-ttrss ()
   (interactive)
   (helm :sources '(helm-ttrss-source)
+	:full-frame t))
+
+(defun helm-ttrss-feeds ()
+  (interactive)
+  (helm :sources '(helm-ttrss-feeds-source)
 	:full-frame t))
 
 (provide 'helm-ttrss)
